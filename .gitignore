@@ -1,0 +1,5 @@
+.idea/*
+go.sum
+showip.exe
+showip
+vendor/*
