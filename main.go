@@ -7,64 +7,61 @@ import (
 	"github.com/tersergo/showip/internal"
 	"log"
 	"net/http"
-	"strings"
-)
-
-var (
-	// serverPort 服务响应端口
-	serverPort int
-	// serverPath 服务响应的路径
-	serverPath string
-	// modName 模块名称
-	modName string = "showip"
 )
 
 func init() {
-	flag.IntVar(&serverPort, "port", 80, "http services port config")
-	flag.StringVar(&serverPath, "path", "/showip", "http services path config")
+	configs := internal.GetConfigArg()
+
+	flag.IntVar(&configs.ServerPort, "port", 80, "http services port config")
+	flag.StringVar(&configs.ServerPath, "path", "/showip", "http services path config")
+	flag.StringVar(&configs.Header, "header", "", "request header names")
+	flag.StringVar(&configs.FormatArgName, "format", "format", "request output argument name")
+
 	flag.Parse()
 }
 
 func main() {
-	if !strings.HasPrefix(serverPath, "/") {
-		serverPath = "/" + serverPath
-	}
-
-	log.Printf("start showip http services port(%d) path(%s)", serverPort, serverPath)
+	log.Println("start showip ", internal.NewServerIP().GetServerURL())
+	serverPort := internal.GetConfigArg().ServerPort
 
 	http.HandleFunc("/", webHandler)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", serverPort), nil)
 
 	if err != nil {
-		log.Fatalf("fatal err: %v", err)
+		log.Fatalln("ListenAndServe err: ", err)
 	}
+
 }
 
 func webHandler(rsp http.ResponseWriter, req *http.Request) {
-	path, rspBody, rspCode := req.URL.Path, "", 200
+	rspBody, rspCode := "", 200
+	configs, client, server := internal.GetConfigArg(), internal.NewClientIP(req), internal.NewServerIP()
+	var ipPack internal.IPPacker
 
-	client := internal.NewClientIP(req)
+	ipPack = client
 
-	if path == serverPath {
-		outType := internal.ToOutputType(client.GetQuery("format"))
+	if req.URL.Path == configs.GetServerPath() { // 默认响应路径
+		outType := internal.ToOutputType(client.GetQuery(configs.FormatArgName))
 		switch outType {
 		case internal.OutputArray:
-			rspBody = internal.ToJson(client.GetIPArray())
+			rspBody = internal.ToJson(ipPack.GetIPArray())
 		case internal.OutputJSON:
-			rspBody = internal.ToJson(client.GetIPMap())
+			rspBody = internal.ToJson(ipPack.GetIPMap())
 		case internal.OutputXML:
-			rspBody = internal.ToXML(client.GetIPMap(), modName)
+			rspBody = internal.ToXML(ipPack.GetIPMap(), configs.ModuleId)
 		case internal.OutputHTML:
-			rspBody = internal.ToHTML(client.GetIPArray(), modName)
+			rspBody = internal.ToHTML(ipPack.GetIPArray(), configs.ModuleId)
 		// case OutputDefault:
 		default:
-			rspBody = fmt.Sprint("IP: ", client.GetIP())
+			rspBody = fmt.Sprint("IP: ", ipPack.GetIP())
 		}
+
+		rsp.Header().Set(configs.XViaHeaderName, server.GetIP())
 	} else {
 		rspCode = 404
 	}
-
 	log.Println(rspCode, client.GetIP(), req.URL)
+
 	rsp.WriteHeader(rspCode)
 
 	if len(rspBody) == 0 {

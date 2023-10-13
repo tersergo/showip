@@ -7,17 +7,6 @@ import (
 	"strings"
 )
 
-const (
-	// DefaultForwardedIPKey  http header X-Forwarded-For
-	DefaultForwardedIPKey = "X-Forwarded-For"
-	// DefaultRealIPKey http header X-Real-Ip
-	DefaultRealIPKey = "X-Real-Ip"
-	// DefaultRemoteAddrKey RemoteAddr
-	DefaultRemoteAddrKey = "RemoteAddress"
-	// DefaultIPKey IP
-	DefaultIPKey = "IP"
-)
-
 // ClientIP 客户端IP
 type ClientIP struct {
 	httpReq *http.Request     // http Request
@@ -25,22 +14,29 @@ type ClientIP struct {
 	ipArray []string          // ip Array
 }
 
-// NewClientIP 客户端IP
+// NewClientIP 构造客户端IP实例
 func NewClientIP(req *http.Request) *ClientIP {
 	return &ClientIP{httpReq: req}
 }
 
-// init argument
+// init ClientIP argument
 func (client *ClientIP) init() {
 	if len(client.ipMap) > 0 {
 		return
 	}
-	client.ipMap = make(map[string]string)
-	client.ipArray = make([]string, 0)
-	headers := []string{DefaultForwardedIPKey, DefaultRealIPKey, DefaultRemoteAddrKey}
+	client.ipMap, client.ipArray = make(map[string]string), make([]string, 0)
+	headers, appendHeader := DefaultHeaderList(), GetConfigArg().GetAddHeaders()
+
+	if len(appendHeader) > 0 { // 配置中包含指定header名称
+		headers = MergeArray(appendHeader, headers)
+	}
 
 	for _, key := range headers {
-		val, has := client.TryGetHeader(key)
+		if _, ok := client.ipMap[key]; ok { // 过滤名称重复key
+			continue
+		}
+
+		val, has := client.TryGetHeaderIP(key)
 		if !has || len(val) == 0 {
 			continue
 		}
@@ -51,7 +47,7 @@ func (client *ClientIP) init() {
 	}
 
 	if len(client.ipArray) > 0 {
-		client.ipMap[DefaultIPKey] = client.ipArray[0]
+		client.ipMap[NodeNameIP] = client.ipArray[0]
 	}
 }
 
@@ -79,19 +75,19 @@ func (client *ClientIP) String() string {
 	return builder.String()
 }
 
-// TryGetHeader 获取请求头部信息
-func (client *ClientIP) TryGetHeader(name string) (val string, hasVal bool) {
+// TryGetHeaderIP 获取请求头部ip信息
+func (client *ClientIP) TryGetHeaderIP(name string) (val string, isValid bool) {
 	if len(name) == 0 || client.httpReq == nil {
 		return
 	}
 
-	if name == DefaultRemoteAddrKey {
+	if name == HeaderNameRemoteAddr {
 		val = client.GetRemoteIP()
 	} else {
-		val = client.httpReq.Header.Get(name)
+		val = strings.TrimSpace(client.httpReq.Header.Get(name))
 	}
-
-	hasVal = len(val) > 0 && val != "unknown"
+	// 有效ip ::1
+	isValid = len(val) > 2 && !strings.EqualFold(val, "unknown")
 
 	return
 }
@@ -144,18 +140,4 @@ func (client *ClientIP) GetIPMap() (ips map[string]string) {
 	}
 
 	return map[string]string{}
-}
-
-// GetXForwardedForIP 获取转发IP X-Forwarded-For
-func (client *ClientIP) GetXForwardedForIP() (val string) {
-	val, _ = client.TryGetHeader(DefaultForwardedIPKey)
-
-	return
-}
-
-// GetXRealIP 获取真实IP X-Real-Ip
-func (client *ClientIP) GetXRealIP() (val string) {
-	val, _ = client.TryGetHeader(DefaultRealIPKey)
-
-	return
 }

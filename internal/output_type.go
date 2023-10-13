@@ -133,3 +133,19 @@ func ToArray(rawObj string, splitKeys ...string) (objs []string) {
 
 	return
 }
+
+// MergeArray 合并多个数组
+func MergeArray(src []string, dstList ...[]string) (newArr []string) {
+	if len(src) > 0 {
+		copy(newArr, src)
+	}
+
+	if len(dstList) > 0 {
+		for _, dst := range dstList {
+			length := len(newArr)
+			copy(newArr[length:], dst)
+		}
+	}
+
+	return
+}
