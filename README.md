@@ -1,6 +1,12 @@
-# showip: 一个查看客户端ip和服务器ip的web服务
+# showip: 一个通用获取客户端IP和服务器IP的web服务
 
+## 功能特点
 
+- 支持客户端IP展示和api获取
+- 支持服务器IP展示和api获取
+- 支持ip的V4和v6获取
+- 支持获取代理和转发协议的用户的真实IP
+- 支持获取自定义协议或扩展协议头中IP
 
 ## 服务启动参数(shell)
 
@@ -60,5 +66,24 @@ IP: 127.0.0.1
 <ul id="showip" class="showip">
     <li>192.168.2.13</li>
 </ul>
+```
+
+## 客户端IP获取的顺序
+
+默认情况下会依次获取用户请求头部header
+
+- X-Forwarded-For
+- X-Real-IP
+- Proxy-Client-IP
+- WL-Proxy-Client-IP
+- RemoteAddr 
+
+如果要获取的IP信息不在以上头部设置里，比如转发代理实现了HTTP_CLIENT_IP头设置，可以通过启动参数header追加加上（多个参数用半角,分隔）
+```shell
+$ ./showip -header=HTTP_CLIENT_IP
+```
+如果默认的获取IP头部顺序不符合要求，比如需要优先获取X-Real-IP头设置，可以通过启动参数header调整优先顺序
+```shell
+$ ./showip -header=X-Real-IP,X-Forwarded-For
 ```
 
