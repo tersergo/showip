@@ -1,17 +1,32 @@
-# showip: 一个查看客户端ip的web服务
+# showip: 一个查看客户端ip和服务器ip的web服务
 
-## 服务启动参数
 
-> $ showip -port=80 -path=/showip
+
+## 服务启动参数(shell)
+
+> $ showip -port=80 -path=/showip 
 
 - port：服务响应端口(默认端口80)
-- path：服务响应的路径(默认访问路径/showip)
+- path：服务响应的路径(默认路径/showip)
+- header：设置客户端IP相关的header头参数（优先获取指定header名称多个参数,分隔）
 
-## 服务访问参数(api)
+### 请求参数名称重命名和关闭参数响应
 
-> http://{your-web-services}{:port}/{path}?format={text|json|array|xml|html}
+- format：请求格式参数名称设置（默认名称format），format=0时关闭格式参数
+- mode：服务器模式参数，（默认名称mode），mode=0时关闭不返回服务器IP信息
+- via：响应头X-Via名称设置（默认名称X-Via），via=0时会关闭X-Via服务器IP头输出
+```text
+- Response Header
+  X-Via: 192.168.21.61
+```
 
-- format: web输出格式参数，可选参数text|json|array|xml|html（默认参数text）
+## 服务访问参数(web|api)
+
+> http://{service-name}{:port}/{path}?format={text|json|array|xml|html}&obj={showip}&mode={host}
+
+- format: 可选参数，输出格式，默认参数text可选参数text|json|array|xml|html
+- obj: 可选参数，html和xml输出对象名称，html时为ul对象id名称，xml时为根节点名称
+- mode: 可选参数，默认不传返回客户端IP信息，当mode=host时返回服务器IP信息
 
 1. format=text 或者 format参数为空时，返回结果为纯文本
 > 请求 http://localhost/showip 或者 http://localhost/showip?format=text
@@ -31,6 +46,7 @@ IP: 127.0.0.1
 }
 ```
 4. format=xml  返回结果为xml格式
+> xml的根节点名称可以通过obj参数设置
 ```xml
 <? version="1.0" encoding="UTF-8" ?>
 <showip>
@@ -39,8 +55,9 @@ IP: 127.0.0.1
 </showip>
 ```
 5. format=html 返回结果为html无序列表格式
+> html中ul的id名称可以通过obj参数设置，样式固定为showip不会随指定名称改变
 ```html
-<ul class="showip">
+<ul id="showip" class="showip">
     <li>192.168.2.13</li>
 </ul>
 ```

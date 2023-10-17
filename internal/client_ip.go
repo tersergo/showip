@@ -112,12 +112,16 @@ func (client *ClientIP) GetRemoteIP() (rip string) {
 }
 
 // GetQuery  获取Get请求参数
-func (client *ClientIP) GetQuery(key string) (val string) {
+func (client *ClientIP) GetQuery(key string, defaultVal ...string) (val string) {
 	if client.httpReq == nil || client.httpReq.URL == nil {
 		return
 	}
 	query := client.httpReq.URL.Query()
 	val = query.Get(key)
+
+	if len(val) == 0 && len(defaultVal) > 0 {
+		val = defaultVal[0]
+	}
 
 	return
 }

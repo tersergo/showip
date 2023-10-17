@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"strings"
 )
 
@@ -69,6 +70,8 @@ func ToXML(obj map[string]string, rootNode ...string) string {
 	builder.WriteString("<? version=\"1.0\" encoding=\"UTF-8\" ?>\n")
 	if len(rootNode) == 0 {
 		rootNode = []string{"root"}
+	} else {
+		rootNode[0] = html.EscapeString(rootNode[0])
 	}
 
 	builder.WriteString(fmt.Sprintf("<%s>\n", rootNode[0]))
@@ -84,7 +87,7 @@ func ToXML(obj map[string]string, rootNode ...string) string {
 }
 
 // ToHTML 装换为HTML(ul-li) String
-func ToHTML(objArray []string, styleId ...string) (htmlText string) {
+func ToHTML(objArray []string, objIds ...string) (htmlText string) {
 	if len(objArray) == 0 {
 		return
 	}
@@ -92,8 +95,8 @@ func ToHTML(objArray []string, styleId ...string) (htmlText string) {
 	var builder strings.Builder
 
 	ulTag := "<ul>\n"
-	if len(styleId) > 0 {
-		ulTag = fmt.Sprintf("<ul class=\"%s\">\n", styleId[0])
+	if len(objIds) > 0 {
+		ulTag = fmt.Sprintf("<ul id=\"%s\" class=\"showip\">\n", objIds[0])
 	}
 	builder.WriteString(ulTag)
 

@@ -7,7 +7,6 @@ import (
 	"github.com/tersergo/showip/internal"
 	"log"
 	"net/http"
-	"strings"
 )
 
 func init() {
@@ -19,7 +18,6 @@ func init() {
 
 	// response output header argument
 	flag.StringVar(&configs.XViaHeaderName, "via", "X-Via", "response header via names")
-	flag.StringVar(&configs.ObjId, "obj", "showip", "response output html styleId or xml nodeId")
 
 	// request argument name
 	flag.StringVar(&configs.FormatArgName, "format", "format", "request output argument name")
@@ -48,14 +46,15 @@ func ipHandler(rsp http.ResponseWriter, req *http.Request) {
 
 	log.Println(rspCode, client.GetIP(), req.URL)
 	reqMode, reqFormat := client.GetQuery(configs.ModeArgName), client.GetQuery(configs.FormatArgName)
+	reqObjId := client.GetQuery(configs.ObjArgName, configs.ModuleName)
 
 	var ipObj internal.IPPacker = client
-	if configs.ModeIsValid() && strings.EqualFold(reqMode, "host") {
+	if configs.ModeIsValid(reqMode) { //是否响应mode参数，返回服务器ip信息
 		ipObj = server
 	}
 
 	outType := internal.OutputDefault
-	if configs.FormatIsValid() {
+	if configs.FormatIsValid() { //是否响应format参数
 		outType = internal.ToOutputType(reqFormat)
 	}
 
@@ -65,15 +64,15 @@ func ipHandler(rsp http.ResponseWriter, req *http.Request) {
 	case internal.OutputJSON:
 		rspBody = internal.ToJson(ipObj.GetIPMap())
 	case internal.OutputXML:
-		rspBody = internal.ToXML(ipObj.GetIPMap(), configs.ObjId)
+		rspBody = internal.ToXML(ipObj.GetIPMap(), reqObjId)
 	case internal.OutputHTML:
-		rspBody = internal.ToHTML(ipObj.GetIPArray(), configs.ObjId)
+		rspBody = internal.ToHTML(ipObj.GetIPArray(), reqObjId)
 	// case OutputDefault:
 	default:
 		rspBody = fmt.Sprint("IP: ", ipObj.GetIP())
 	}
 
-	if configs.XViaIsValid() { //是否输出包含服务器IP的X-Via头信息
+	if configs.XViaIsValid() { // 是否输出包含服务器IP的X-Via头信息
 		rsp.Header().Set(configs.XViaHeaderName, server.GetIP())
 	}
 	rsp.WriteHeader(rspCode)
