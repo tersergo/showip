@@ -1,12 +1,15 @@
-# showip: 一个通用获取客户端IP和服务器IP的web服务
+# showip: 通用获取客户端IP和服务器IP的web服务
+
+
+
 
 ## 功能特点
 
-- 支持客户端IP展示和api获取
-- 支持服务器IP展示和api获取
-- 支持ip的V4和v6获取
-- 支持获取代理和转发协议的用户的真实IP
-- 支持获取自定义协议或扩展协议头中IP
+- 支持客户端ip展示和api获取
+- 支持服务器ip展示和api获取
+- 支持本地ip的v4和v6输出
+- 支持代理协议、转发协议中用户的真实ip
+- 支持自定义转发协议、扩展协议头中ip（可在服务启动时指定header）
 
 ## 服务启动参数(shell)
 
@@ -14,19 +17,20 @@
 
 - port：服务响应端口(默认端口80)
 - path：服务响应的路径(默认路径/showip)
-- header：设置客户端IP相关的header头参数（优先获取指定header名称多个参数,分隔）
+- header：自定义转发协议header名称参数，IP相关header名称（指定或优先获取header名称多个参数,分隔）
 
 ### 请求参数名称重命名和关闭参数响应
 
+
 - format：请求输出格式参数名称重命名和关闭设置（默认名称format），format=0时关闭格式参数响应操作
-- mode：服务器模式参数重命名和关闭设置，（默认名称mode），mode=0时关闭服务器IP相关的响应操作
-- via：响应头X-Via名称重命名和关闭设置（默认名称X-Via），via=0时会关闭X-Via服务器IP头输出
+- mode：服务器模式参数重命名和关闭设置，（默认名称mode），mode=0via=0时会关闭X-Via服务器时关闭服务器IP相关的响应操作
+- via：响应头X-Via名称重命名和关闭设置（默认名称X-Via），via=0时会关闭X-Via服务器IP的输出（具体输出如下）
 ```text
--- Response Header 默认输出下面内容（该信息可通过启动参数via来重命名或关闭输出）
+-- Response Header（该输出可通过启动参数-via=0来关闭）
   X-Via: 192.168.2.1
 ```
 
-## 服务访问参数(web|api)
+## 服务访问参数(web && api)
 
 > http://{service-name}[:port]/{path}?[format={text|json|array|xml|html}]&[obj={showip}]&[mode=host]
 
@@ -58,7 +62,7 @@ IP: ::1
   "WL-Proxy-Client-IP": "xx.xx.xx.xx"
   */
 }
-/* format=json&mode=host 返回结果为服务器IP的json格式 
+/* 当format=json&mode=host 返回结果为服务器IP的json格式 
 {
   "IP": "192.168.2.1",
   "IPV4": "192.168.2.1"
@@ -68,13 +72,13 @@ IP: ::1
 ```
 4. format=xml  返回结果为客户端IP的xml格式
 > xml的根节点名称可以通过obj参数设置
-```xml
+```text
 <? version="1.0" encoding="UTF-8" ?>
 <showip>
     <IP>192.168.2.13</IP>
     <RemoteAddress>192.168.2.13</RemoteAddress>
 </showip>
-<!-- format=xml&mode=host  返回结果为服务器IP的xml格式
+<!-- 当format=xml&mode=host  返回结果为服务器IP的xml格式
 <? version="1.0" encoding="UTF-8" ?>
 <showip>
     <IP>192.168.2.1</IP>
