@@ -32,9 +32,9 @@
 
 - format: 可选参数，输出格式，默认参数text可选参数text|json|array|xml|html
 - obj: 可选参数，html和xml输出对象名称，html时为ul对象id名称，xml时为根节点名称
-- mode: 可选参数，默认不传返回客户端IP信息，当mode=host时返回服务器IP信息
+- mode: 可选参数，默认不传返回客户端IP信息，当mode=host时返回**服务器IP信息**
 
-1. format参数为空或format=text时，返回客户端第一个有效IP的纯文本格式，*当参数包含mode=host时返回结果为服务器第一个有效IP的纯文本格式*
+1. format参数为空或format=text时，返回第一个有效IP的纯文本格式
 > 请求 http://localhost/showip 或者 http://localhost/showip?format=text
 ```text
 IP: 127.0.0.1
@@ -47,7 +47,7 @@ IP: ::1
 ["192.168.2.13"]
 ```
 3. format=json 返回结果为客户端IP的json格式
-```json
+```text
 {
    "IP": "192.168.2.13",
    "RemoteAddress": "192.168.2.13"
@@ -91,22 +91,21 @@ IP: ::1
 </ul>
 ```
 
-## 客户端IP获取的顺序
+## 关于客户端真实IP获取的逻辑顺序
 
-默认情况下会依次获取用户请求头部header
+程序默认情况会以下顺序，从用户请求协议头部header中，来获取用户的真实IP信息
 
-- X-Forwarded-For
-- X-Real-IP
-- Proxy-Client-IP
-- WL-Proxy-Client-IP
-- RemoteAddr 
+1. X-Forwarded-For
+2. X-Real-IP
+3. Proxy-Client-IP
+4. WL-Proxy-Client-IP
+5. RemoteAddr
 
-如果要获取的IP信息不在以上头部设置里，比如转发代理实现了HTTP_CLIENT_IP头设置，可以通过启动参数header追加加上（多个参数用半角,分隔）
+如果要获取的IP信息不在以上头部设置里，比如转发代理HTTP_CLIENT_IP协议，可以通过启动参数header追加上（多个参数用半角,分隔），响应时会优先获取HTTP_CLIENT_IP协议中的IP
 ```shell
 $ showip -header=HTTP_CLIENT_IP
 ```
-如果默认的获取IP头部顺序不符合要求，比如需要优先获取X-Real-IP头设置，可以通过启动参数header调整优先顺序
+如果默认的获取IP头部顺序不符合要求，比如需要优先获取X-Real-IP头设置，可以通过启动参数header调整优先顺序，之后会按调整后的顺序来响应
 ```shell
 $ showip -header=X-Real-IP,X-Forwarded-For
 ```
-
