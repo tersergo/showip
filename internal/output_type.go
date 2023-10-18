@@ -11,8 +11,8 @@ import (
 type OutputType int
 
 const (
-	// OutputDefault 默认输出
-	OutputDefault OutputType = iota
+	// OutputText 默认输出
+	OutputText OutputType = iota
 	// OutputHTML 输出html
 	OutputHTML
 	// OutputArray 输出array
@@ -25,7 +25,7 @@ const (
 
 // ToOutputType 装换为 OutputType
 func ToOutputType(outArg string) (outType OutputType) {
-	outType = OutputDefault
+	outType = OutputText
 
 	if len(outArg) == 0 {
 		return
@@ -42,7 +42,7 @@ func ToOutputType(outArg string) (outType OutputType) {
 	case "xml":
 		outType = OutputXML
 	default:
-		outType = OutputDefault
+		outType = OutputText
 	}
 
 	return

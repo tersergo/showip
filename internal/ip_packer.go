@@ -2,12 +2,12 @@ package internal
 
 // IPPacker ip地址包接口
 type IPPacker interface {
-	// GetIP 获取IP
-	GetIP() string
-	// GetIPArray 获取ip列表
-	GetIPArray() []string
-	// GetIPMap 获取ip列表map格式
-	GetIPMap() map[string]string
+	// Default 获取默认IP
+	Default() string
+	// GetArray 获取ip列表
+	GetArray() []string
+	// GetMap 获取ip列表map格式
+	GetMap() map[string]string
 	// String 字符串格式
 	String() string
 }

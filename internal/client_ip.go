@@ -25,7 +25,7 @@ func (client *ClientIP) init() {
 		return
 	}
 	client.ipMap, client.ipArray = make(map[string]string), make([]string, 0)
-	headers, appendHeader := DefaultHeaderList(), GetConfigArg().GetAddHeaders()
+	headers, appendHeader := DefaultHeaderList(), GetConfigs().GetHeaders()
 
 	if len(appendHeader) > 0 { // 配置中包含指定header名称
 		headers = MergeArray(appendHeader, headers)
@@ -51,8 +51,8 @@ func (client *ClientIP) init() {
 	}
 }
 
-// GetIP 获取IP
-func (client *ClientIP) GetIP() (cip string) {
+// Default 获取默认IP
+func (client *ClientIP) Default() (cip string) {
 	client.init()
 	if len(client.ipArray) > 0 {
 		return client.ipArray[0]
@@ -126,8 +126,8 @@ func (client *ClientIP) GetQuery(key string, defaultVal ...string) (val string) 
 	return
 }
 
-// GetIPArray 获取客户端ip列表
-func (client *ClientIP) GetIPArray() (ips []string) {
+// GetArray 获取客户端ip列表
+func (client *ClientIP) GetArray() (ips []string) {
 	client.init()
 	if len(client.ipArray) > 0 {
 		return client.ipArray
@@ -136,8 +136,8 @@ func (client *ClientIP) GetIPArray() (ips []string) {
 	return []string{}
 }
 
-// GetIPMap 获取客户端ip列表map格式
-func (client *ClientIP) GetIPMap() (ips map[string]string) {
+// GetMap 获取客户端ip列表map格式
+func (client *ClientIP) GetMap() (ips map[string]string) {
 	client.init()
 	if len(client.ipMap) > 0 {
 		return client.ipMap

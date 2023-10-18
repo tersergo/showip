@@ -66,8 +66,8 @@ func (server *ServerIP) init() {
 	}
 }
 
-// GetIP 获取IP
-func (server *ServerIP) GetIP() (cip string) {
+// Default 获取默认IP
+func (server *ServerIP) Default() (cip string) {
 	server.init()
 
 	if len(server.ipV4) > 0 {
@@ -81,18 +81,18 @@ func (server *ServerIP) GetIP() (cip string) {
 
 }
 
-// GetIPArray 获取服务器ip列表
-func (server *ServerIP) GetIPArray() (ips []string) {
+// GetArray 获取服务器ip列表
+func (server *ServerIP) GetArray() (ips []string) {
 	server.init()
 
 	return MergeArray(server.ipV4, server.ipV6)
 }
 
-// GetIPMap 获取服务器ip列表map格式
-func (server *ServerIP) GetIPMap() (ips map[string]string) {
+// GetMap 获取服务器ip列表map格式
+func (server *ServerIP) GetMap() (ips map[string]string) {
 	server.init()
 
-	defaultIP := server.GetIP()
+	defaultIP := server.Default()
 	if len(defaultIP) == 0 {
 		return
 	}
@@ -116,7 +116,7 @@ func (server *ServerIP) String() string {
 	server.init()
 	var builder strings.Builder
 
-	ipMap := server.GetIPMap()
+	ipMap := server.GetMap()
 	for k, v := range ipMap {
 		str := fmt.Sprintf("%s: %s\n", k, v)
 		builder.WriteString(str)
@@ -127,14 +127,14 @@ func (server *ServerIP) String() string {
 
 // GetServerURL 获取服务器url
 func (server *ServerIP) GetServerURL() string {
-	host := server.GetIP()
+	host := server.Default()
 	if len(host) == 0 {
 		host, _ = os.Hostname()
 	}
 
-	if GetConfigArg().ServerPort != 80 {
-		host += fmt.Sprintf(":%d", GetConfigArg().ServerPort)
+	if GetConfigs().Port != 80 {
+		host += fmt.Sprintf(":%d", GetConfigs().Port)
 	}
 
-	return fmt.Sprint("http", "://", host, GetConfigArg().GetServerPath())
+	return fmt.Sprint("http", "://", host, GetConfigs().GetServerPath())
 }
