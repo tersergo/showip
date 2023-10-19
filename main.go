@@ -7,7 +7,11 @@ import (
 	"github.com/tersergo/showip/internal"
 	"log"
 	"net/http"
+	"os"
 )
+
+// isVerMode 是否展示版本
+var isVerMode bool
 
 func init() {
 	configs := internal.GetConfigs()
@@ -15,18 +19,22 @@ func init() {
 	flag.IntVar(&configs.Port, "port", 80, "http services port config")
 	flag.StringVar(&configs.Path, "path", "/"+internal.ModuleName, "http services path config")
 	flag.StringVar(&configs.Header, "header", "", "append request ip header names")
-
 	// response output header argument
 	flag.StringVar(&configs.ViaArg, "via", internal.ViaVarName, "response header X-Via names")
-
 	// request argument name
 	flag.StringVar(&configs.FormatArg, "format", internal.FormatVarName, "request output argument name")
 	flag.StringVar(&configs.ModeArg, "mode", internal.ModeVarName, "request mode argument name")
+	flag.BoolVar(&isVerMode, "version", false, "print package name and version")
 
 	flag.Parse()
 }
 
 func main() {
+	if isVerMode {
+		fmt.Println(internal.GetVersion())
+		os.Exit(0)
+	}
+
 	envConf := internal.GetConfigs()
 	log.Println("launch showip services:", internal.NewServerIP().GetServerURL())
 	log.Println("load environment config", internal.ToJson(envConf))

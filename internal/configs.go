@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -72,4 +73,9 @@ func (conf *configs) ModeIsValid(host string) bool {
 func (conf *configs) ViaIsValid() bool {
 
 	return conf.ViaArg != InvalidArg
+}
+
+// GetVersion 获取当前版本
+func GetVersion() string {
+	return fmt.Sprint(ModuleName, " v", Version)
 }
