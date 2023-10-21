@@ -1,10 +1,15 @@
 package internal
 
+import _ "embed"
+
+// Version 版本（读取Version文件的版本信息）
+//
+//go:embed Version
+var Version string
+
 const (
 	// ModuleName 系统模块名称
 	ModuleName = "showip"
-	// Version 版本
-	Version = "0.23.1019"
 
 	// HeaderNameXFF   Squid,Nginx 代理服务ip头 X-Forwarded-For
 	HeaderNameXFF = "X-Forwarded-For"

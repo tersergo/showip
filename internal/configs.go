@@ -77,5 +77,5 @@ func (conf *configs) ViaIsValid() bool {
 
 // GetVersion 获取当前版本
 func GetVersion() string {
-	return fmt.Sprint(ModuleName, " v", Version)
+	return fmt.Sprint(ModuleName, " ", Version)
 }
