@@ -69,7 +69,7 @@ func ToXML(obj map[string]string, rootNode ...string) string {
 
 	builder.WriteString("<? version=\"1.0\" encoding=\"UTF-8\" ?>\n")
 	if len(rootNode) == 0 {
-		rootNode = []string{"root"}
+		rootNode = []string{ModuleName}
 	} else {
 		rootNode[0] = html.EscapeString(rootNode[0])
 	}
@@ -94,9 +94,9 @@ func ToHTML(objArray []string, objIds ...string) (htmlText string) {
 
 	var builder strings.Builder
 
-	ulTag := "<ul>\n"
+	ulTag := fmt.Sprintf("<ul class=\"%s\">\n", ModuleName)
 	if len(objIds) > 0 {
-		ulTag = fmt.Sprintf("<ul id=\"%s\" class=\"showip\">\n", objIds[0])
+		ulTag = fmt.Sprintf("<ul id=\"%s\" class=\"%s\">\n", html.EscapeString(objIds[0]), ModuleName)
 	}
 	builder.WriteString(ulTag)
 
