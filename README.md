@@ -24,14 +24,13 @@
   *以下启动参数支持重命名和关闭响应输出*
 - via：Response响应头重命名和关闭设置（默认名称X-Via），via=0时会关闭Response头部的输出
 
-  默认会在Response Header输出一个X-Via头参数，对应内容为响应的服务器IP，如下
+  默认会在Response Header输出一个X-Via头参数，对应内容为响应的服务器IP(为安全考虑默认是IP后2位），如ip 192.168.2.1 X-Via头会输出 2.1
   ```text
-  X-Via: 192.168.2.1
+  X-Via: 2.1 
   ```
   > $ showip -via=X-Power-By
-
   ```text
-  X-Power-By: 192.168.2.1
+  X-Power-By: 2.1
   ```
   > $ showip -via=0 则会关闭在Response Header的输出
 
@@ -110,12 +109,12 @@ format=json 返回结果为客户端IP的json格式
 
 ### xml：XML格式输出
 
-format=xml 返回结果为客户端IP的xml格式，xml的根节点名称可以通过obj参数设置
-> http://{service-name}/showip?format=xml&obj=showip
+format=xml 返回结果为客户端IP的xml格式，xml的根节点ClientIP名称可以通过obj参数设置
+> http://{service-name}/showip?format=xml
 
 ```xml
 <? version="1.0" encoding="UTF-8" ?>
-<showip>
+<ClientIP>
     <IP>192.168.2.13</IP>
     <RemoteAddress>192.168.2.13</RemoteAddress>
     <!-- 如果请求包含以下头部协议，返回会包含下列内容（通过启动参数header自定义的头名称也出现在这里） --> 
@@ -123,7 +122,7 @@ format=xml 返回结果为客户端IP的xml格式，xml的根节点名称可以�
     <X-Real-IP>xx.xx.xx.xx</X-Real-IP>
     <Proxy-Client-IP>xx.xx.xx.xx</Proxy-Client-IP>
     <WL-Proxy-Client-IP>xx.xx.xx.xx</WL-Proxy-Client-IP>
-</showip>
+</ClientIP>
 ```
 
 > http://{service-name}/showip?format=xml&mode=host
@@ -131,12 +130,12 @@ format=xml 返回结果为客户端IP的xml格式，xml的根节点名称可以�
 当请求参数包含mode=host时，返回结果为**服务器IP**的xml格式
 ```xml
 <? version="1.0" encoding="UTF-8" ?>
-<showip>
+<ServerIP>
     <IP>192.168.2.1</IP>
     <IPV4>192.168.2.1</IPV4>
     <!-- 如果有ipV6地址时，会包含下列内容 -->
     <IPV6>ff::aa:bb:cc:dd</IPV6>
-</showip>
+</ServerIP>
 ```
 
 ### html：HTML格式输出
