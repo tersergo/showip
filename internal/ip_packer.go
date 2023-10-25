@@ -10,6 +10,8 @@ type IPPacker interface {
 	GetMap() map[string]string
 	// String 字符串格式
 	String() string
+	// TypeName 类名称
+	TypeName() string
 }
 
 // DefaultHeaderList 默认ip相关头部列表

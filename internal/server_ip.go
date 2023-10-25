@@ -2,17 +2,17 @@ package internal
 
 import (
 	"fmt"
+	"log"
 	"net"
-	"net/http"
 	"os"
+	"reflect"
 	"strings"
 )
 
 // ServerIP 服务器IP
 type ServerIP struct {
-	httpReq *http.Request // http Request
-	ipV4    []string
-	ipV6    []string
+	ipV4 []string
+	ipV6 []string
 }
 
 // NewServerIP 构造服务器IP实例
@@ -64,6 +64,8 @@ func (server *ServerIP) init() {
 			}
 		}
 	}
+
+	log.Println("---------", server.ipV4, server.ipV6)
 }
 
 // Default 获取默认IP
@@ -137,4 +139,40 @@ func (server *ServerIP) GetServerURL() string {
 	}
 
 	return fmt.Sprint("http", "://", host, GetConfigs().GetServerPath())
+}
+
+// TypeName  类名称
+func (server *ServerIP) TypeName() string {
+	return reflect.TypeOf(*server).Name()
+}
+
+// GetSimpleIP 默认服务器极简ip模式：ipv4返回后2位，ipv6返回后3位
+func (server *ServerIP) GetSimpleIP() string {
+	server.init()
+	cip := server.Default()
+	if len(cip) < 6 { // 非有效ip
+		return cip
+	}
+
+	lastIndex, split := 0, ""
+	if strings.Contains(cip, ".") { //ipv4
+		lastIndex, split = 2, "."
+	} else if strings.Contains(cip, ":") { //ipv6
+		lastIndex, split = 3, ":"
+	} else {
+		return cip //未知 IP 类型
+	}
+
+	ipSplits := ToArray(cip, split)
+	maxLen := len(ipSplits)
+	if maxLen <= lastIndex {
+		return cip
+	}
+
+	var lasList []string
+	for i := lastIndex; i > 0; i-- {
+		lasList = append(lasList, ipSplits[maxLen-i])
+	}
+
+	return strings.Join(lasList, split)
 }

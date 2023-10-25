@@ -50,12 +50,12 @@ func main() {
 }
 
 func ipHandler(rsp http.ResponseWriter, req *http.Request) {
-	rspCode, rspBody := 200, ""
+	rspCode, rspBody := http.StatusOK, ""
 	configs, client, server := internal.GetConfigs(), internal.NewClientIP(req), internal.NewServerIP()
 
 	log.Println(rspCode, client.Default(), req.URL)
-	reqMode, reqFormat := client.GetQuery(configs.ModeArg), client.GetQuery(configs.FormatArg)
-	reqObjId := client.GetQuery(configs.ObjArg, internal.ModuleName)
+	reqMode, reqFormat, reqObjId := client.GetQuery(configs.ModeArg), client.GetQuery(configs.FormatArg),
+		client.GetQuery(configs.ObjArg)
 
 	var ipObj internal.IPPacker = client
 	if configs.ModeIsValid(reqMode) { //是否响应mode参数，返回服务器ip信息
@@ -73,7 +73,7 @@ func ipHandler(rsp http.ResponseWriter, req *http.Request) {
 	case internal.OutputJSON:
 		rspBody = internal.ToJson(ipObj.GetMap())
 	case internal.OutputXML:
-		rspBody = internal.ToXML(ipObj.GetMap(), reqObjId)
+		rspBody = internal.ToXML(ipObj, reqObjId)
 	case internal.OutputHTML:
 		rspBody = internal.ToHTML(ipObj.GetArray(), reqObjId)
 	default: // case OutputText:
@@ -81,12 +81,12 @@ func ipHandler(rsp http.ResponseWriter, req *http.Request) {
 	}
 
 	if configs.ViaIsValid() { // 是否输出包含服务器IP的X-Via头信息
-		rsp.Header().Set(configs.ViaArg, server.Default())
+		rsp.Header().Set(configs.ViaArg, server.GetSimpleIP())
 	}
 	rsp.WriteHeader(rspCode)
 
 	_, err := rsp.Write([]byte(rspBody))
 	if err != nil {
-		log.Fatalln("err", err, "rspBody", rspBody)
+		log.Fatalln("err", err, "response", rspBody)
 	}
 }

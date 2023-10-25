@@ -3,7 +3,6 @@ package internal
 import (
 	"encoding/json"
 	"fmt"
-	"html"
 	"strings"
 )
 
@@ -64,45 +63,43 @@ func ToJson(obj interface{}) (jsonText string) {
 }
 
 // ToXML 装换为XML String
-func ToXML(obj map[string]string, rootNode ...string) string {
+func ToXML(obj IPPacker, rootNode string) string {
 	var builder strings.Builder
-
 	builder.WriteString("<? version=\"1.0\" encoding=\"UTF-8\" ?>\n")
-	if len(rootNode) == 0 {
-		rootNode = []string{ModuleName}
-	} else {
-		rootNode[0] = html.EscapeString(rootNode[0])
+	if obj == nil {
+		return builder.String()
 	}
 
-	builder.WriteString(fmt.Sprintf("<%s>\n", rootNode[0]))
-	if len(obj) > 0 {
-		for k, v := range obj {
-			str := fmt.Sprintf("\t<%[1]s>%[2]s</%[1]s>\n", k, v)
-			builder.WriteString(str)
+	if len(rootNode) == 0 {
+		rootNode = obj.TypeName()
+	}
+
+	builder.WriteString(fmt.Sprintf("<%s>\n", rootNode))
+	objList := obj.GetMap()
+	if len(objList) > 0 {
+		for k, v := range objList {
+			elem := fmt.Sprintf("\t<%[1]s>%[2]s</%[1]s>\n", k, v)
+			builder.WriteString(elem)
 		}
 	}
-	builder.WriteString(fmt.Sprintf("</%s>\n", rootNode[0]))
+	builder.WriteString(fmt.Sprintf("</%s>\n", rootNode))
 
 	return builder.String()
 }
 
 // ToHTML 装换为HTML(ul-li) String
-func ToHTML(objArray []string, objIds ...string) (htmlText string) {
-	if len(objArray) == 0 {
-		return
-	}
-
+func ToHTML(objArray []string, objId string) (htmlText string) {
 	var builder strings.Builder
 
-	ulTag := fmt.Sprintf("<ul class=\"%s\">\n", ModuleName)
-	if len(objIds) > 0 {
-		ulTag = fmt.Sprintf("<ul id=\"%s\" class=\"%s\">\n", html.EscapeString(objIds[0]), ModuleName)
+	builder.WriteString(fmt.Sprintf("<ul class=\"%s\"", ModuleName))
+	if len(objId) > 0 {
+		builder.WriteString(fmt.Sprintf(" id=\"%s\"", objId))
 	}
-	builder.WriteString(ulTag)
+	builder.WriteString(" >\n")
 
 	for _, v := range objArray {
-		str := fmt.Sprintf("\t<li>%s</li>\n", v)
-		builder.WriteString(str)
+		liStr := fmt.Sprintf("\t<li>%s</li>\n", v)
+		builder.WriteString(liStr)
 	}
 	builder.WriteString("</ul>\n")
 
@@ -138,22 +135,25 @@ func ToArray(rawObj string, splitKeys ...string) (objs []string) {
 }
 
 // MergeArray 合并多个数组
-func MergeArray(src []string, dstList ...[]string) (newArr []string) {
-	length := len(src)
-	if length > 0 {
-		newArr = make([]string, length)
-		copy(newArr[0:], src)
-	}
-
-	if len(dstList) == 0 {
+func MergeArray(srcList ...[]string) (newArr []string) {
+	if len(srcList) == 0 {
 		return
 	}
 
-	for _, dst := range dstList {
-		if len(dst) == 0 {
+	total := 0
+	for _, src := range srcList {
+		total += len(src)
+	}
+	newArr = make([]string, total)
+	startIndex := 0
+	for _, src := range srcList {
+		length := len(src)
+		if length == 0 {
 			return
 		}
-		newArr = append(newArr, dst...)
+		copy(newArr[startIndex:], src)
+
+		startIndex += length
 	}
 
 	return
