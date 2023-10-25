@@ -14,7 +14,7 @@ import (
 var isVerMode bool
 
 func init() {
-	configs := internal.GetConfigs()
+	configs := internal.GetConfig()
 	// services launch argument
 	flag.IntVar(&configs.Port, "port", 80, "http services port config")
 	flag.StringVar(&configs.Path, "path", "/"+internal.ModuleName, "http services path config")
@@ -35,12 +35,12 @@ func main() {
 		os.Exit(0)
 	}
 
-	envConf := internal.GetConfigs()
+	envConf := internal.GetConfig()
 	log.Println("launch showip services:", internal.NewServerIP().GetServerURL())
 	log.Println("load environment config", internal.ToJson(envConf))
 
 	//http.HandleFunc("/", webHandler)
-	http.HandleFunc(envConf.GetServerPath(), ipHandler) // 默认响应路径/showip
+	http.HandleFunc(envConf.GetPath(), ipHandler) // 默认响应路径/showip
 	err := http.ListenAndServe(fmt.Sprintf(":%d", envConf.Port), nil)
 
 	if err != nil {
@@ -50,19 +50,19 @@ func main() {
 }
 
 func ipHandler(rsp http.ResponseWriter, req *http.Request) {
-	rspCode, rspBody := http.StatusOK, ""
-	configs, client, server := internal.GetConfigs(), internal.NewClientIP(req), internal.NewServerIP()
+	configs, client, server := internal.GetConfig(), internal.NewClientIP(req), internal.NewServerIP()
 
-	log.Println(rspCode, client.Default(), req.URL)
+	log.Println(client.Default(), req.URL)
+
+	var ipObj internal.IPPacker = client
 	reqMode, reqFormat, reqObjId := client.GetQuery(configs.ModeArg), client.GetQuery(configs.FormatArg),
 		client.GetQuery(configs.ObjArg)
 
-	var ipObj internal.IPPacker = client
 	if configs.ModeIsValid(reqMode) { //是否响应mode参数，返回服务器ip信息
 		ipObj = server
 	}
 
-	outType := internal.OutputText
+	outType, rspBody := internal.OutputText, ""
 	if configs.FormatIsValid() { //是否响应format参数
 		outType = internal.ToOutputType(reqFormat)
 	}
@@ -77,13 +77,13 @@ func ipHandler(rsp http.ResponseWriter, req *http.Request) {
 	case internal.OutputHTML:
 		rspBody = internal.ToHTML(ipObj.GetArray(), reqObjId)
 	default: // case OutputText:
-		rspBody = fmt.Sprint(internal.NodeNameIP, ": ", ipObj.Default())
+		rspBody = ipObj.String()
 	}
 
 	if configs.ViaIsValid() { // 是否输出包含服务器IP的X-Via头信息
 		rsp.Header().Set(configs.ViaArg, server.GetSimpleIP())
 	}
-	rsp.WriteHeader(rspCode)
+	rsp.WriteHeader(http.StatusOK)
 
 	_, err := rsp.Write([]byte(rspBody))
 	if err != nil {

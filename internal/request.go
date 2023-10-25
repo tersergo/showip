@@ -7,18 +7,18 @@ import (
 	"strings"
 )
 
-// RequestQuery 客户端请求查询
-type RequestQuery struct {
+// Request 客户端请求查询
+type Request struct {
 	httpReq *http.Request // http Request
 }
 
-// NewQuery 构造客户端请求实例
-func NewQuery(req *http.Request) RequestQuery {
-	return RequestQuery{httpReq: req}
+// NewRequest 构造客户端请求实例
+func NewRequest(req *http.Request) Request {
+	return Request{httpReq: req}
 }
 
 // TryGetHeaderIP 获取请求头部ip信息
-func (client RequestQuery) TryGetHeaderIP(name string) (val string, isValid bool) {
+func (client Request) TryGetHeaderIP(name string) (val string, isValid bool) {
 	if len(name) == 0 || client.httpReq == nil {
 		return
 	}
@@ -35,7 +35,7 @@ func (client RequestQuery) TryGetHeaderIP(name string) (val string, isValid bool
 }
 
 // GetHeader 获取请求头部信息
-func (client RequestQuery) GetHeader(name string) (val string) {
+func (client Request) GetHeader(name string) (val string) {
 	val = client.httpReq.Header.Get(name)
 
 	if len(val) > 0 {
@@ -46,7 +46,7 @@ func (client RequestQuery) GetHeader(name string) (val string) {
 }
 
 // GetRemoteIP  获取请求的网络地址IP(可能是代理服务器IP)
-func (client RequestQuery) GetRemoteIP() (rip string) {
+func (client Request) GetRemoteIP() (rip string) {
 	if client.httpReq == nil {
 		return
 	}
@@ -65,7 +65,7 @@ func (client RequestQuery) GetRemoteIP() (rip string) {
 }
 
 // GetQuery  获取Get请求参数
-func (client RequestQuery) GetQuery(key string, defaultVal ...string) (val string) {
+func (client Request) GetQuery(key string, defValue ...string) (val string) {
 	if client.httpReq != nil && client.httpReq.URL != nil {
 		val = client.httpReq.URL.Query().Get(key)
 	}
@@ -77,8 +77,8 @@ func (client RequestQuery) GetQuery(key string, defaultVal ...string) (val strin
 		return
 	}
 
-	if len(defaultVal) > 0 { // 有配置请求默认值
-		return defaultVal[0]
+	if len(defValue) > 0 { // 有请求默认值
+		return defValue[0]
 	}
 
 	return

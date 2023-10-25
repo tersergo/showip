@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-// configs 单一实例 环境配置参数
-var _configs = &configs{
+// Config 单一实例 环境配置参数
+var _configs = &Config{
 	Port:      80,
 	Path:      "/" + ModuleName,
 	FormatArg: FormatVarName,
@@ -15,8 +15,8 @@ var _configs = &configs{
 	ObjArg:    ObjVarName,
 }
 
-// configs 配置参数
-type configs struct {
+// Config 配置参数
+type Config struct {
 	// Port 服务响应端口
 	Port int
 	// Port 服务响应的路径
@@ -35,13 +35,13 @@ type configs struct {
 	ObjArg string
 }
 
-// GetConfigs 获取环境配置参数
-func GetConfigs() *configs {
+// GetConfig 获取环境配置参数
+func GetConfig() *Config {
 	return _configs
 }
 
-// GetServerPath 获取服务响应的路径
-func (conf *configs) GetServerPath() string {
+// GetPath 获取服务响应的路径
+func (conf *Config) GetPath() string {
 	if strings.HasPrefix(conf.Path, "/") {
 		return conf.Path
 	}
@@ -49,7 +49,7 @@ func (conf *configs) GetServerPath() string {
 }
 
 // GetHeaders 优先获取用户请求header的指定名称的ip参数
-func (conf *configs) GetHeaders() (header []string) {
+func (conf *Config) GetHeaders() (header []string) {
 	if len(conf.Header) > 0 {
 		header = ToArray(conf.Header, ",")
 	}
@@ -58,20 +58,17 @@ func (conf *configs) GetHeaders() (header []string) {
 }
 
 // FormatIsValid 是否响应format输出参数
-func (conf *configs) FormatIsValid() bool {
-
+func (conf *Config) FormatIsValid() bool {
 	return conf.FormatArg != InvalidArg
 }
 
 // ModeIsValid 是否响应获取服务器IP的mode参数
-func (conf *configs) ModeIsValid(host string) bool {
-
+func (conf *Config) ModeIsValid(host string) bool {
 	return conf.ModeArg != InvalidArg && strings.EqualFold(host, ModeVarIsHost)
 }
 
 // ViaIsValid 是否输出包含服务器IP的X-Via响应头
-func (conf *configs) ViaIsValid() bool {
-
+func (conf *Config) ViaIsValid() bool {
 	return conf.ViaArg != InvalidArg
 }
 

@@ -40,6 +40,7 @@ func ToOutputType(outArg string) (outType OutputType) {
 		outType = OutputJSON
 	case "xml":
 		outType = OutputXML
+	//case "text":
 	default:
 		outType = OutputText
 	}

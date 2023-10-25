@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"strings"
 )
 
 // ClientIP 客户端IP
@@ -12,12 +11,12 @@ type ClientIP struct {
 	ipMap   map[string]string // ip map Set
 	ipArray []string          // ip Array
 
-	RequestQuery
+	Request
 }
 
 // NewClientIP 构造客户端IP实例
 func NewClientIP(req *http.Request) *ClientIP {
-	return &ClientIP{RequestQuery: NewQuery(req)}
+	return &ClientIP{Request: NewRequest(req)}
 }
 
 // init ClientIP argument
@@ -26,7 +25,7 @@ func (client *ClientIP) init() {
 		return
 	}
 	client.ipMap, client.ipArray = make(map[string]string), make([]string, 0)
-	headers, appendHeader := DefaultHeaderList(), GetConfigs().GetHeaders()
+	headers, appendHeader := DefaultHeaderList(), GetConfig().GetHeaders()
 
 	if len(appendHeader) > 0 { // 配置中包含指定header名称
 		headers = MergeArray(appendHeader, headers)
@@ -66,14 +65,8 @@ func (client *ClientIP) Default() (cip string) {
 // String 字符串格式
 func (client *ClientIP) String() string {
 	client.init()
-	var builder strings.Builder
 
-	for k, v := range client.ipMap {
-		str := fmt.Sprintf("%s: %s\n", k, v)
-		builder.WriteString(str)
-	}
-
-	return builder.String()
+	return fmt.Sprint(NodeNameIP, ": ", client.Default())
 }
 
 // GetArray 获取客户端ip列表

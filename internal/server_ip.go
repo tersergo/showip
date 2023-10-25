@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"reflect"
@@ -57,6 +56,7 @@ func (server *ServerIP) init() {
 	// 本机没有有效ip时，补充本机环回ip
 	if len(server.ipV4) == 0 && len(server.ipV6) == 0 && len(loopIPs) > 0 {
 		for _, loopNet := range loopIPs {
+			//if loopNet.IP.To4() != nil {
 			if len(loopNet.IP) == net.IPv4len {
 				server.ipV4 = []string{loopNet.IP.String()}
 			} else {
@@ -65,7 +65,6 @@ func (server *ServerIP) init() {
 		}
 	}
 
-	log.Println("---------", server.ipV4, server.ipV6)
 }
 
 // Default 获取默认IP
@@ -107,7 +106,7 @@ func (server *ServerIP) GetMap() (ips map[string]string) {
 		ips[NodeNameIPV4] = strings.Join(server.ipV4, ",")
 	}
 	if len(server.ipV6) > 0 {
-		ips[NodeNameIPV6] = strings.Join(server.ipV4, ",")
+		ips[NodeNameIPV6] = strings.Join(server.ipV6, ",")
 	}
 
 	return
@@ -116,15 +115,8 @@ func (server *ServerIP) GetMap() (ips map[string]string) {
 // String 字符串格式
 func (server *ServerIP) String() string {
 	server.init()
-	var builder strings.Builder
 
-	ipMap := server.GetMap()
-	for k, v := range ipMap {
-		str := fmt.Sprintf("%s: %s\n", k, v)
-		builder.WriteString(str)
-	}
-
-	return builder.String()
+	return fmt.Sprint(NodeNameIP, ": ", server.Default())
 }
 
 // GetServerURL 获取服务器url
@@ -134,11 +126,11 @@ func (server *ServerIP) GetServerURL() string {
 		host, _ = os.Hostname()
 	}
 
-	if GetConfigs().Port != 80 {
-		host += fmt.Sprintf(":%d", GetConfigs().Port)
+	if GetConfig().Port != 80 {
+		host += fmt.Sprintf(":%d", GetConfig().Port)
 	}
 
-	return fmt.Sprint("http", "://", host, GetConfigs().GetServerPath())
+	return fmt.Sprint("http", "://", host, GetConfig().GetPath())
 }
 
 // TypeName  类名称
@@ -146,9 +138,10 @@ func (server *ServerIP) TypeName() string {
 	return reflect.TypeOf(*server).Name()
 }
 
-// GetSimpleIP 默认服务器极简ip模式：ipv4返回后2位，ipv6返回后3位
+// GetSimpleIP 默认服务器ip极简模式：ipv4返回后2位，ipv6返回后3位
 func (server *ServerIP) GetSimpleIP() string {
 	server.init()
+
 	cip := server.Default()
 	if len(cip) < 6 { // 非有效ip
 		return cip
@@ -169,10 +162,10 @@ func (server *ServerIP) GetSimpleIP() string {
 		return cip
 	}
 
-	var lasList []string
+	var lastList []string
 	for i := lastIndex; i > 0; i-- {
-		lasList = append(lasList, ipSplits[maxLen-i])
+		lastList = append(lastList, ipSplits[maxLen-i])
 	}
 
-	return strings.Join(lasList, split)
+	return strings.Join(lastList, split)
 }

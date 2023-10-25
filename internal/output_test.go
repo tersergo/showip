@@ -37,10 +37,9 @@ func TestToMergeArray(t *testing.T) {
 
 	arrMap := map[int]string{
 		0:         arr0[0],
-		1:         arr1[1],
+		1:         arr1[0],
 		total - 1: arrN[0],
 	}
-
 	for index, val := range arrMap {
 		if newArr[index] != val {
 			t.Fail()
