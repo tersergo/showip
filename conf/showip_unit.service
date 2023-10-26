@@ -1,0 +1,18 @@
+# showip unit configuration
+# 1. cp showip_unit.service /usr/lib/systemd/system/showip_unit.service
+# 2. systemctl enable showip
+# 3. systemctl start showip
+#
+[Unit]
+Description=showip web service and api
+After=network.target
+Documentation=https://github.com/tersergo/showip
+[Service]
+Type=simple
+# ExecStart=/data/www/showip/showip -port=8080
+ExecStart=/bin/bash -c '/data/www/showip/showip -port=8080 &>> /data/log/showip/access.log'
+KillMode=process
+Restart=on-failure
+RestartSec=50s
+[Install]
+WantedBy=multi-user.target
