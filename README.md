@@ -18,18 +18,20 @@
 
 ## 服务启动参数(shell)
 
-> $ showip -port=80 -path=/showip [-header=X-Real-IP,X-Forwarded-For] [-via=X-Via] [-format=format] [-mode=mode]
+> $ showip -port=80 -path=/showip -header=X-Real-IP,X-Forwarded-For -via=X-Via -format=format -mode=mode
 
-- port：服务响应端口(默认端口80)
-- path：服务响应的路径(默认路径/showip)
-- header：自定义转发协议header名称参数，指定优先获取IP相关header头名称（多个名称用半角,分隔）
+- **port**：服务响应端口(默认端口80)
+- **path**：服务响应的路径(默认路径/showip)
+- **header**：自定义转发协议header名称参数，指定优先获取IP相关header头名称（多个名称用半角,分隔）
 
   *以下启动参数支持重命名和关闭响应输出*
-- via：Response响应头重命名和关闭设置（默认名称X-Via），via=0时会关闭Response头部的输出
 
-  默认会在Response Header输出一个X-Via头参数，对应内容为响应的服务器IP(为安全考虑默认是IP后2位），如ip 192.168.2.1 X-Via头会输出 2.1
+- *format*：format请求参数名称重命名和关闭设置（默认名称format），format=0时关闭格式参数响应操作
+- *mode*：mode请求参数重命名和关闭设置（默认名称mode），mode=0时关闭服务器IP信息的响应操作
+- **via**：Response响应头重命名和关闭设置（默认名称X-Via），via=0时会关闭Response头部的输出
+  默认会在Response Header输出一个X-Via头参数，对应内容为响应的服务器IP，如服务器ip是192.168.2.1 X-Via头会输出 2.1 *为安全考虑默认是服务器IP是后2位(IPV6是后3位）*
   ```text
-  X-Via: 2.1 
+  X-Via: 2.1
   ```
   > $ showip -via=X-Power-By
   ```text
@@ -37,8 +39,6 @@
   ```
   > $ showip -via=0 则会关闭在Response Header的输出
 
-- format：format请求参数名称重命名和关闭设置（默认名称format），format=0时关闭格式参数响应操作
-- mode：mode请求参数重命名和关闭设置（默认名称mode），mode=0时关闭服务器IP信息的响应操作
 
 ## 服务访问参数和输出格式(web && api)
 
@@ -90,9 +90,9 @@ format=json 返回结果为客户端IP的json格式
    "IP": "192.168.2.13",
    "RemoteAddress": "192.168.2.13",
    /* 如果请求包含以下头部协议，返回会包含下列内容（通过启动参数header自定义的头名称也出现在这里） */
-   "X-Forwarded-For": "xx.xx.xx.xx"
-   "X-Real-IP": "xx.xx.xx.xx"
-   "Proxy-Client-IP": "xx.xx.xx.xx"
+   "X-Forwarded-For": "xx.xx.xx.xx",
+   "X-Real-IP": "xx.xx.xx.xx",
+   "Proxy-Client-IP": "xx.xx.xx.xx",
    "WL-Proxy-Client-IP": "xx.xx.xx.xx"
 }
 ```
@@ -116,7 +116,7 @@ format=xml 返回结果为客户端IP的xml格式，xml的根节点ClientIP名�
 > http://{service-name}/showip?format=xml
 
 ```xml
-<? version="1.0" encoding="UTF-8" ?>
+<?version="1.0" encoding="UTF-8" ?>
 <ClientIP>
     <IP>192.168.2.13</IP>
     <RemoteAddress>192.168.2.13</RemoteAddress>
@@ -132,7 +132,7 @@ format=xml 返回结果为客户端IP的xml格式，xml的根节点ClientIP名�
 
 当请求参数包含mode=host时，返回结果为**服务器IP**的xml格式
 ```xml
-<? version="1.0" encoding="UTF-8" ?>
+<?version="1.0" encoding="UTF-8" ?>
 <ServerIP>
     <IP>192.168.2.1</IP>
     <IPV4>192.168.2.1</IPV4>
