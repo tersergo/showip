@@ -173,3 +173,30 @@ $ showip -header=HTTP_CLIENT_IP
 ```shell
 $ showip -header=X-Real-IP,X-Forwarded-For
 ```
+
+## 为showip增加守护进程
+
+### 支持自启动服务
+
+> conf/showip_unit.service
+```shell
+- 1. 复制showip_unit.service
+cp conf/showip_unit.service /usr/lib/systemd/system/showip.service
+- 2. 开启开机自动运行
+systemctl enable showip
+- 3. 启动和关闭 showip
+systemctl start showip
+systemctl stop showip
+```
+### 支持supervisor
+
+> conf/showip_supervisor.conf
+```shell
+- 1. 复制showip_supervisor.conf
+cp conf/showip_supervisor.conf /etc/supervisor/conf.d/showip.conf
+- 2. 启动运行 showip
+supervisorctl start showip
+- 3. 关闭 showip
+supervisorctl stop showip
+```
+
