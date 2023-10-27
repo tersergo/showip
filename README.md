@@ -1,6 +1,13 @@
 # showip: 通用获取客户端IP和服务器IP的web服务
 
-[TOC]
+## 目录
+* [功能特点](#功能特点)
+* [程序安装](#编译安装源码)
+* [启动参数(shell)](#服务启动参数)
+* [访问参数(web & api)](#服务访问参数和输出格式)
+* [客户端IP获取逻辑](#客户端IP获取逻辑)
+* [程序自动运行](#启用守护进程)
+
 
 
 ## 编译安装源码
@@ -16,7 +23,7 @@
 - 支持代理协议、转发协议中用户的真实ip
 - 支持自定义转发协议、扩展协议头中ip（需在服务启动时指定扩展header名称）
 
-## 服务启动参数(shell)
+## 服务启动参数
 
 > $ showip -port=80 -path=/showip -header=X-Real-IP,X-Forwarded-For -via=X-Via -format=format -mode=mode
 
@@ -40,7 +47,7 @@
   > $ showip -via=0 则会关闭在Response Header的输出
 
 
-## 服务访问参数和输出格式(web && api)
+## 服务访问参数和输出格式
 
 > http://{service-name}[:port]/{path}?[format={text|json|array|xml|html}]&[obj={showip}]&[mode=host]
 
@@ -155,7 +162,10 @@ format=html 返回结果为html无序列表格式，html中ul的id名称可以�
 
 当请求参数包含mode=host时，返回结果为**服务器IP**，返回格式不变。
 
-## 关于客户端真实IP获取的逻辑顺序
+
+## 客户端IP获取逻辑
+
+### 默认获取顺序
 
 程序默认情况会按照以下顺序，优先从用户请求协议的header中，来获取用户的真实IP信息
 
@@ -165,7 +175,9 @@ format=html 返回结果为html无序列表格式，html中ul的id名称可以�
 4. WL-Proxy-Client-IP
 5. RemoteAddr
 
-如果要获取的IP信息不在以上头部设置里，如转发实现了 HTTP_CLIENT_IP 协议，可以通过启动参数header追加上（多个参数用半角,分隔），响应时会优先获取HTTP_CLIENT_IP协议中的IP
+### 自定义获取IP头和顺序调整
+
+如果要获取的IP信息不在以上头部设置里，如转发实现了 HTTP_CLIENT_IP 协议，可以通过启动参数header追加上*（多个参数用半角,分隔）*，响应时会优先获取HTTP_CLIENT_IP协议中的IP
 
 ```shell
 $ showip -header=HTTP_CLIENT_IP
@@ -174,10 +186,10 @@ $ showip -header=HTTP_CLIENT_IP
 如果默认的获取IP头部顺序不符合要求，如需要优先获取X-Real-IP设置，可以通过启动参数header调整优先顺序，之后会按调整后的顺序来响应
 
 ```shell
-$ showip -header=X-Real-IP,X-Forwarded-For
+$ showip -header=X-Real-IP,X-Forwarded-For,Proxy-Client-IP
 ```
 
-## 为showip增加守护进程
+## 启用守护进程
 
 ### 支持自启动服务
 
