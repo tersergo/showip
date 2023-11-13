@@ -4,10 +4,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/tersergo/showip/internal"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/tersergo/showip/internal"
 )
 
 // isVerMode 是否展示版本
@@ -39,9 +40,9 @@ func main() {
 	log.Println("launch showip services:", internal.NewServerIP().GetServerURL())
 	log.Println("load environment config", internal.ToJson(envConf))
 
-	//http.HandleFunc("/", webHandler)
+	// http.HandleFunc("/", webHandler)
 	http.HandleFunc(envConf.GetPath(), ipHandler) // 默认响应路径/showip
-	err := http.ListenAndServe(fmt.Sprintf(":%d", envConf.Port), nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", envConf.GetPort()), nil)
 
 	if err != nil {
 		log.Fatalln("ListenAndServe err: ", err)
@@ -58,12 +59,12 @@ func ipHandler(rsp http.ResponseWriter, req *http.Request) {
 	reqMode, reqFormat, reqObjId := client.GetQuery(configs.ModeArg), client.GetQuery(configs.FormatArg),
 		client.GetQuery(configs.ObjArg)
 
-	if configs.ModeIsValid(reqMode) { //是否响应mode参数，返回服务器ip信息
+	if configs.ModeIsValid(reqMode) { // 是否响应mode参数，返回服务器ip信息
 		ipObj = server
 	}
 
 	outType, rspBody := internal.OutputText, ""
-	if configs.FormatIsValid() { //是否响应format参数
+	if configs.FormatIsValid() { // 是否响应format参数
 		outType = internal.ToOutputType(reqFormat)
 	}
 
@@ -85,7 +86,7 @@ func ipHandler(rsp http.ResponseWriter, req *http.Request) {
 	}
 	rsp.WriteHeader(http.StatusOK)
 
-	_, err := rsp.Write([]byte(rspBody))
+	_, err := rsp.Write([]byte(rspBody + "\n"))
 	if err != nil {
 		log.Fatalln("err", err, "response", rspBody)
 	}

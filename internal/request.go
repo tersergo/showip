@@ -72,7 +72,7 @@ func (client Request) GetQuery(key string, defValue ...string) (val string) {
 
 	if len(val) > 0 {
 		val = strings.TrimSpace(val)
-		val = html.EscapeString(val) //预防xss攻击
+		val = html.EscapeString(val) // 预防xss攻击
 
 		return
 	}

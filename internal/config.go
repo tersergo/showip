@@ -48,10 +48,19 @@ func (conf *Config) GetPath() string {
 	return "/" + conf.Path
 }
 
+// GetPort 获取服务响应的端口
+func (conf *Config) GetPort() int {
+	if conf.Port < 1 {
+		return 80
+	}
+
+	return conf.Port
+}
+
 // GetHeaders 优先获取用户请求header的指定名称的ip参数
 func (conf *Config) GetHeaders() (header []string) {
 	if len(conf.Header) > 0 {
-		header = ToArray(conf.Header, ",")
+		header = ToArray(conf.Header, ArraySplitKey)
 	}
 
 	return

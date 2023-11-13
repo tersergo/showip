@@ -40,8 +40,7 @@ func ToOutputType(outArg string) (outType OutputType) {
 		outType = OutputJSON
 	case "xml":
 		outType = OutputXML
-	//case "text":
-	default:
+	default: // case "text":
 		outType = OutputText
 	}
 
@@ -115,7 +114,7 @@ func ToArray(rawObj string, splitKeys ...string) (objs []string) {
 	}
 
 	if len(splitKeys) == 0 {
-		splitKeys = []string{","} // 默认以半角逗号,拆分
+		splitKeys = []string{ArraySplitKey} // 默认以半角逗号,拆分
 	}
 
 	rawObj = strings.TrimSpace(rawObj)

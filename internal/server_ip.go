@@ -56,7 +56,7 @@ func (server *ServerIP) init() {
 	// 本机没有有效ip时，补充本机环回ip
 	if len(server.ipV4) == 0 && len(server.ipV6) == 0 && len(loopIPs) > 0 {
 		for _, loopNet := range loopIPs {
-			//if loopNet.IP.To4() != nil {
+			// if loopNet.IP.To4() != nil {
 			if len(loopNet.IP) == net.IPv4len {
 				server.ipV4 = []string{loopNet.IP.String()}
 			} else {
@@ -148,12 +148,12 @@ func (server *ServerIP) GetSimpleIP() string {
 	}
 
 	lastIndex, split := 0, ""
-	if strings.Contains(cip, ".") { //ipv4
+	if strings.Contains(cip, ".") { // ipv4
 		lastIndex, split = 2, "."
-	} else if strings.Contains(cip, ":") { //ipv6
+	} else if strings.Contains(cip, ":") { // ipv6
 		lastIndex, split = 3, ":"
 	} else {
-		return cip //未知 IP 类型
+		return cip // 未知 IP 类型
 	}
 
 	ipSplits := ToArray(cip, split)

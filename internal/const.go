@@ -41,4 +41,7 @@ const (
 	ModeVarName = "mode"
 	// ModeVarIsHost mode变量值
 	ModeVarIsHost = "host"
+
+	// ArraySplitKey 默认查分标记
+	ArraySplitKey = ","
 )
