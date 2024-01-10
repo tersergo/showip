@@ -40,14 +40,29 @@ func main() {
 	log.Println("launch showip services:", internal.NewServerIP().GetServerURL())
 	log.Println("load environment config", internal.ToJson(envConf))
 
+	path, port := envConf.GetPath(), fmt.Sprintf(":%d", envConf.GetPort())
 	// http.HandleFunc("/", webHandler)
-	http.HandleFunc(envConf.GetPath(), ipHandler) // 默认响应路径/showip
-	err := http.ListenAndServe(fmt.Sprintf(":%d", envConf.GetPort()), nil)
+	http.HandleFunc(path, ipHandler)       // 默认响应路径/showip
+	http.HandleFunc(path+"/ua", uaHandler) // 默认响应路径/showip/ua
 
+	err := http.ListenAndServe(port, nil)
 	if err != nil {
-		log.Fatalln("ListenAndServe err: ", err)
+		log.Fatalln("Listen ", port, " err: ", err)
 	}
+}
 
+func uaHandler(rsp http.ResponseWriter, req *http.Request) {
+	rspBody := req.UserAgent()
+
+	rsp.WriteHeader(http.StatusOK)
+	// if len(rspBody) > 0 {
+	// 	rspBody = strings.Replace(rspBody, " ", "\n", -1)
+	// }
+
+	_, err := rsp.Write([]byte(rspBody + "\n \n \n \n \n \n"))
+	if err != nil {
+		log.Fatalln("err", err, "response", rspBody)
+	}
 }
 
 func ipHandler(rsp http.ResponseWriter, req *http.Request) {

@@ -31,6 +31,7 @@ func (client *ClientIP) init() {
 		headers = MergeArray(appendHeader, headers)
 	}
 
+	ipKeys := make(map[string]bool)
 	for _, key := range headers {
 		if _, ok := client.ipMap[key]; ok { // 过滤名称重复key
 			continue
@@ -41,9 +42,14 @@ func (client *ClientIP) init() {
 			continue
 		}
 
-		valList := ToArray(val)
-		client.ipArray = append(client.ipArray, valList...)
 		client.ipMap[key] = val
+		valList := ToArray(val)
+		for _, ip := range valList { // 过滤重复ip
+			if _, ok := ipKeys[ip]; !ok {
+				client.ipArray = append(client.ipArray, ip)
+				ipKeys[ip] = true
+			}
+		}
 	}
 
 	if len(client.ipArray) > 0 {
